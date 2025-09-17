@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 
@@ -74,6 +74,7 @@ export default function Products({ products }: { products: Product[] }) {
         })}
         <div>
           {items.map((val) => {
+            console.log(val, "ON ITEMS");
             return (
               <div
                 className="card"
@@ -93,12 +94,15 @@ export default function Products({ products }: { products: Product[] }) {
                 <div className="card-body">
                   <h5 className="card-title">{val.title}</h5>
                   <p className="card-text">{val.description}</p>
-                  <a
+                  <Link
                     className="btn btn-primary"
-                    href={`/product/${stringToDash(val.title)}`}
+                    href={{
+                      pathname: `/product/${stringToDash(val.title)}`,
+                      query: val,
+                    }}
                   >
                     View details
-                  </a>
+                  </Link>
                 </div>
               </div>
             );
