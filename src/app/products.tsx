@@ -11,6 +11,8 @@ export default function Products({ products }: { products: Product[] }) {
   const [items, setItems] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [selectedSort, setSelectedSort] = useState<number>(0);
+  const [sortedItems, setSortedItems] = useState<Product[]>([]);
 
   useEffect(() => {
     let newCategories: string[] = [];
@@ -25,10 +27,26 @@ export default function Products({ products }: { products: Product[] }) {
     setItems(products);
   }, [setItems, products]);
 
+  useEffect(() => {
+    console.log(items, "ORIGINAL ITEMS SORT");
+    let newItems: Product[] = [...items];
+    if (selectedSort === 1) {
+      console.log("ASCENDING");
+      newItems = newItems.sort((a, b) => a.price - b.price);
+    } else if (selectedSort === 2) {
+      console.log("DESCENDING");
+
+      newItems = newItems.sort((a, b) => b.price - a.price);
+    } else {
+      console.log("RETURN TO BASE");
+      newItems = newItems;
+    }
+    setSortedItems(newItems);
+  }, [items, selectedSort, setSortedItems]);
+
   function handleCategoryFilter(val: string) {
     const loc = categoryFilter.indexOf(val);
     if (loc > -1) {
-      console.log(categoryFilter);
       let newCat = [...categoryFilter.filter((cat) => cat !== val)];
       console.log(newCat, "HEY");
       setCategoryFilter(newCat);
@@ -54,6 +72,44 @@ export default function Products({ products }: { products: Product[] }) {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
+        <p>sort by price</p>
+        <div>
+          <input
+            type="radio"
+            id={"no"}
+            onChange={(e) => {
+              setSelectedSort(0);
+            }}
+            name={"no"}
+            checked={selectedSort === 0}
+          />
+          <label htmlFor={"no"}>{"no"}</label>
+        </div>
+        <div>
+          <input
+            type="radio"
+            id={"ascending"}
+            onChange={(e) => {
+              setSelectedSort(1);
+            }}
+            name={"ascending"}
+            checked={selectedSort === 1}
+          />
+          <label htmlFor={"ascending"}>{"Lowest Price"}</label>
+        </div>
+        <div>
+          <input
+            type="radio"
+            id={"descending"}
+            onChange={(e) => {
+              setSelectedSort(2);
+            }}
+            name={"descending"}
+            checked={selectedSort === 2}
+          />
+          <label htmlFor={"descending"}>{"Highest Price"}</label>
+        </div>
+
         <p>filter by category</p>
         {categories.map((val) => {
           const checked = categoryFilter.find((cat) => cat == val);
@@ -73,8 +129,7 @@ export default function Products({ products }: { products: Product[] }) {
           );
         })}
         <div>
-          {items.map((val) => {
-            console.log(val, "ON ITEMS");
+          {sortedItems.map((val) => {
             return (
               <div
                 className="card"
