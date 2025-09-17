@@ -72,7 +72,7 @@ export default function Products({ products }: { products: Product[] }) {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <p>sort by price</p>
+        <h5>sort by price</h5>
         <div>
           <input
             type="radio"
@@ -110,7 +110,7 @@ export default function Products({ products }: { products: Product[] }) {
           <label htmlFor={"descending"}>{"Highest Price"}</label>
         </div>
 
-        <p>filter by category</p>
+        <h5>filter by category</h5>
         {categories.map((val) => {
           const checked = categoryFilter.find((cat) => cat == val);
           return (
