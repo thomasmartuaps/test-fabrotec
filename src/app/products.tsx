@@ -13,6 +13,11 @@ export default function Products({ products }: { products: Product[] }) {
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [selectedSort, setSelectedSort] = useState<number>(0);
   const [sortedItems, setSortedItems] = useState<Product[]>([]);
+  const [paginatedItems, setPaginatedItems] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const pageSize = 5;
+  const [totalPages, setTotalPages] = useState<number>(0);
 
   useEffect(() => {
     let newCategories: string[] = [];
@@ -31,14 +36,10 @@ export default function Products({ products }: { products: Product[] }) {
     console.log(items, "ORIGINAL ITEMS SORT");
     let newItems: Product[] = [...items];
     if (selectedSort === 1) {
-      console.log("ASCENDING");
       newItems = newItems.sort((a, b) => a.price - b.price);
     } else if (selectedSort === 2) {
-      console.log("DESCENDING");
-
       newItems = newItems.sort((a, b) => b.price - a.price);
     } else {
-      console.log("RETURN TO BASE");
       newItems = newItems;
     }
     setSortedItems(newItems);
@@ -48,12 +49,39 @@ export default function Products({ products }: { products: Product[] }) {
     const loc = categoryFilter.indexOf(val);
     if (loc > -1) {
       let newCat = [...categoryFilter.filter((cat) => cat !== val)];
-      console.log(newCat, "HEY");
       setCategoryFilter(newCat);
     } else {
       setCategoryFilter([...categoryFilter, val]);
     }
   }
+
+  function paginate(array: any[], itemsPerPage: number, currentPage: number) {
+    const totalNumberOfPages = Math.ceil(array.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, array.length);
+
+    const currentPageItems = array.slice(startIndex, endIndex);
+    console.log;
+    return {
+      currentPageItems,
+      totalNumberOfPages,
+      currentPage,
+      itemsPerPage,
+    };
+  }
+
+  function handlePagination(items: Product[], currentPage: number) {
+    const newPaginatedList = paginate(items, pageSize, currentPage);
+    console.log(newPaginatedList.currentPageItems, "CURRENT ITEMS");
+    console.log(currentPage, "CURRENT PAGE");
+    setCurrentPage(currentPage);
+    setPaginatedItems(newPaginatedList.currentPageItems);
+    setTotalPages(newPaginatedList.totalNumberOfPages);
+  }
+
+  useEffect(() => {
+    handlePagination(sortedItems, 1);
+  }, [sortedItems]);
 
   useEffect(() => {
     if (categoryFilter.length > 0) {
@@ -129,7 +157,7 @@ export default function Products({ products }: { products: Product[] }) {
           );
         })}
         <div>
-          {sortedItems.map((val) => {
+          {paginatedItems.map((val) => {
             return (
               <div
                 className="card"
@@ -163,6 +191,55 @@ export default function Products({ products }: { products: Product[] }) {
             );
           })}
         </div>
+
+        <nav aria-label="Page navigation example">
+          <ul className="pagination">
+            <li className="page-item">
+              {currentPage > 1 ? (
+                <a
+                  className="page-link"
+                  aria-label="Previous"
+                  onClick={() => handlePagination(sortedItems, currentPage - 1)}
+                >
+                  <span className="sr-only">&laquo;</span>
+                </a>
+              ) : (
+                <p className="page-link" aria-label="Previous">
+                  <span className="sr-only">&laquo;</span>
+                </p>
+              )}
+            </li>
+            {[...Array(totalPages).fill(1)].map((_, i) => {
+              if (i > 0) {
+                return (
+                  <li className="page-item" key={i}>
+                    <a
+                      className="page-link"
+                      onClick={() => handlePagination(sortedItems, i)}
+                    >
+                      {i}
+                    </a>
+                  </li>
+                );
+              }
+            })}
+            <li className="page-item">
+              {currentPage < totalPages ? (
+                <a
+                  className="page-link"
+                  aria-label="Next"
+                  onClick={() => handlePagination(sortedItems, currentPage + 1)}
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              ) : (
+                <p className="page-link" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </p>
+              )}
+            </li>
+          </ul>
+        </nav>
       </main>
     </div>
   );
